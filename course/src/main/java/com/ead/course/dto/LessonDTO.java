@@ -1,7 +1,7 @@
 package com.ead.course.dto;
 
-import com.ead.course.models.CourseModel;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -9,11 +9,15 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
-public class ModuleDTO extends RepresentationModel<ModuleDTO> {
-    private UUID moduleId;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class LessonDTO extends RepresentationModel<LessonDTO> {
+
+    private UUID lessonId;
     private String title;
     private String description;
+    private String videoUrl;
     @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime creationDate;
-    private CourseModelDTORef course;
+    private ModuleDTORef module;
+
 }
