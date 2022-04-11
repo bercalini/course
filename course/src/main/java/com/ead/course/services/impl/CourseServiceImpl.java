@@ -12,11 +12,13 @@ import com.ead.course.repositories.CourseRepository;
 import com.ead.course.repositories.LessonRepository;
 import com.ead.course.repositories.ModuleRepository;
 import com.ead.course.services.CourseService;
+import com.ead.course.specifications.SpecificationTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -67,11 +69,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Page<CourseDTO> findAll(Pageable pageable) {
-        Page<CourseModel> pagesCourseModels = courseRepository.findAll(pageable);
+    public Page<CourseDTO> findAll(Specification<CourseModel> courseSpec, Pageable pageable) {
+        Page<CourseModel> pagesCourseModels = courseRepository.findAll(courseSpec, pageable);
         List<CourseDTO> courseDTOSList = courseAssembler.converterListCourseTOCourseDTO(pagesCourseModels.toList());
         return new PageImpl<>(courseDTOSList, pageable, pagesCourseModels.getTotalElements());
     }
+
 
     @Override
     public CourseDTO findById(UUID courseId) {

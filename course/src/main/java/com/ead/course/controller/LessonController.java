@@ -2,7 +2,9 @@ package com.ead.course.controller;
 
 import com.ead.course.dto.LessonDTO;
 import com.ead.course.input.LessonInput;
+import com.ead.course.parameters.subs.CourseParamsIntoLesson;
 import com.ead.course.services.LeassonService;
+import com.ead.course.specifications.SpecificationTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -52,8 +54,7 @@ public class LessonController {
             @ApiResponse(code = 403, message = "erro com a auorização com a API"),
             @ApiResponse(code = 404, message = "Id do module não encontrado ou da lição")
     })
-    public LessonDTO update(@Valid @PathVariable(value = "lessonId")UUID lessonId,
-                            @PathVariable(value = "moduleId")UUID moduleId, @RequestBody LessonInput lessonInput) {
+    public LessonDTO update(@Valid @PathVariable(value = "lessonId")UUID lessonId, @PathVariable(value = "moduleId")UUID moduleId, @RequestBody LessonInput lessonInput) {
         LessonDTO lessonDTO = leassonService.update(lessonId, moduleId, lessonInput);
         return lessonDTO.add(linkTo(methodOn(LessonController.class).findByIdIntoModule(lessonDTO.getLessonId(), lessonDTO.getModule().getModuleId())).withSelfRel());
     }
@@ -66,8 +67,10 @@ public class LessonController {
             @ApiResponse(code = 403, message = "erro com a auorização com a API"),
             @ApiResponse(code = 404, message = "Id do module não encontrado ou da lição")
     })
-    public Page<LessonDTO> findAll(Pageable pageable, @PathVariable(value = "moduleId")UUID moduleId) {
-        Page<LessonDTO> pagesLessons = leassonService.findAll(pageable, moduleId);
+    public Page<LessonDTO> findAll(Pageable pageable, @PathVariable(value = "moduleId")UUID moduleId,
+                                   SpecificationTemplate.LessonSpec lessonSpec,
+                                   CourseParamsIntoLesson courseParamsIntoLesson) {
+        Page<LessonDTO> pagesLessons = leassonService.findAll(SpecificationTemplate.lessonModuleId(moduleId, courseParamsIntoLesson).and(lessonSpec), pageable);
         if(!pagesLessons.isEmpty()) {
             pagesLessons.stream().forEach(p -> {
                 p.add(linkTo(methodOn(LessonController.class).findByIdIntoModule(p.getLessonId(), p.getModule().getModuleId())).withSelfRel());

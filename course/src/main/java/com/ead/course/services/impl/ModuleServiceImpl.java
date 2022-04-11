@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -83,16 +84,19 @@ public class ModuleServiceImpl implements ModuleService {
         return moduleAssembler.converterModuleTOModuleDTO(findById(moduleId));
     }
 
-    @Override
-    public List<ModuleDTO> findModulesByCourseId(UUID courseId) {
-        List<ModuleModel> modulesModels = moduleRepository.findAllModuleIntoCourse(courseId);
-        return moduleAssembler.converterListModuleTOModuleDTO(modulesModels);
-    }
+
 
     @Override
     public ModuleDTO findByIdIntoCourseId(UUID moduleId, UUID courseId) {
         Optional<ModuleModel> moduleModel = moduleRepository.findByIdIntoCourseId(moduleId, courseId);
         return moduleAssembler.converterModuleTOModuleDTO(moduleModel.get());
+    }
+
+    @Override
+    public Page<ModuleDTO> findModulesByCourseId(Specification<ModuleModel> spec, Pageable pageable) {
+        Page<ModuleModel> pagesModules = moduleRepository.findAll(spec, pageable);
+        List<ModuleDTO> listsModules = moduleAssembler.converterListModuleTOModuleDTO(pagesModules.toList());
+        return new PageImpl<>(listsModules, pageable, pagesModules.getTotalElements());
     }
 
     private CourseModel courseFindById(UUID courseId) {

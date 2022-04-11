@@ -4,6 +4,7 @@ import com.ead.course.dto.CourseDTO;
 import com.ead.course.input.CourseInput;
 import com.ead.course.models.CourseModel;
 import com.ead.course.services.CourseService;
+import com.ead.course.specifications.SpecificationTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -51,8 +52,15 @@ public class CourseController {
             @ApiResponse(code = 401, message = "Erro com a autorização com a API"),
             @ApiResponse(code = 403, message = "Erro com a permissão com a API"),
     })
-    public Page<CourseDTO> findAll(@PageableDefault(page = 0, size = 10, sort = "creationDate", direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<CourseDTO> pagesCourseDTO = courseService.findAll(pageable);
+    public Page<CourseDTO> findAll(SpecificationTemplate.CourseSpec courseSpec,
+            @PageableDefault(page = 0, size = 10, sort = "courseId", direction = Sort.Direction.ASC) Pageable pageable,
+            @RequestParam(required = false) UUID userId) {
+        Page<CourseDTO> pagesCourseDTO = null;
+        if(userId != null) {
+            pagesCourseDTO = courseService.findAll(SpecificationTemplate.courseModelUserId(userId).and(courseSpec), pageable);
+        } else {
+            pagesCourseDTO = courseService.findAll(courseSpec, pageable);
+        }
         if(!pagesCourseDTO.isEmpty()) {
             pagesCourseDTO.toList().stream().forEach(course -> {
                 course.add(linkTo(methodOn(CourseController.class).findById(course.getCourseId())).withSelfRel());
@@ -101,6 +109,4 @@ public class CourseController {
         BeanUtils.copyProperties(courseDTO, courseModel);
         courseService.delete(courseModel);
     }
-
-
 }

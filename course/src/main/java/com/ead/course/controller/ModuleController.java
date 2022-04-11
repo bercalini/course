@@ -2,7 +2,9 @@ package com.ead.course.controller;
 
 import com.ead.course.dto.ModuleDTO;
 import com.ead.course.input.ModuleInput;
+import com.ead.course.parameters.subs.CourseParamsIntoLesson;
 import com.ead.course.services.ModuleService;
+import com.ead.course.specifications.SpecificationTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -16,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -113,8 +114,10 @@ public class ModuleController {
             @ApiResponse(code = 403, message = "Erro com a permissão com a API"),
             @ApiResponse(code = 404, message = "Modulo não encontrado ou curso nao encontrado"),
     })
-    public List<ModuleDTO> findAllModulesIntoCourse(@PathVariable(name = "courseId") UUID courseId) {
-        List<ModuleDTO> modules = moduleService.findModulesByCourseId(courseId);
+    public Page<ModuleDTO> findAllModulesIntoCourse(@PathVariable(name = "courseId") UUID courseId,
+                                                    SpecificationTemplate.ModuleSpec moduleSpec,
+                                                    @PageableDefault(page = 0, size = 10, sort = "moduleId", direction = Sort.Direction.ASC)Pageable pageable) {
+        Page<ModuleDTO> modules = moduleService.findModulesByCourseId(SpecificationTemplate.moduleCourseId(courseId).and(moduleSpec), pageable);
         if(!modules.isEmpty()) {
             modules.stream().forEach(m -> {
                 m.add(linkTo(methodOn(ModuleController.class).finbOneModuleIntoCourse(m.getModuleId(), m.getCourse().getCourseId())).withSelfRel());

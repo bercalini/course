@@ -5,6 +5,7 @@ import com.ead.course.input.ModuleInput;
 import com.ead.course.models.ModuleModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public interface ModuleService {
     ModuleDTO update(UUID moduleId, ModuleInput moduleInput);
     Page<ModuleDTO> getAll(Pageable pageable);
     ModuleDTO findOne(UUID moduleId);
-    List<ModuleDTO> findModulesByCourseId(UUID courseId);
     ModuleDTO findByIdIntoCourseId(UUID moduleId, UUID courseId);
+
+    Page<ModuleDTO> findModulesByCourseId(Specification<ModuleModel> spec, Pageable pageable);
 }

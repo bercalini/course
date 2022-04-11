@@ -64,5 +64,9 @@ public class CourseModel implements Serializable {
     @Fetch(FetchMode.SUBSELECT)
     private Set<ModuleModel> modules = new HashSet<>();
 
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<CourseUserModel> courses = new HashSet<>();
+
 
 }
